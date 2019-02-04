@@ -94,6 +94,27 @@ public class AvmCLI {
         return new TransactionContextImpl(callTransaction, block);
     }
 
+    public static TransactionContext setupOneTransfer(IEnvironment env, String storagePath, org.aion.vm.api.interfaces.Address address, org.aion.vm.api.interfaces.Address sender, long energyLimit, long nonceBias, BigInteger balance) {
+        reportTransferRequest(env, storagePath, address, sender, balance);
+
+        if (address.toBytes().length != Address.LENGTH){
+            throw env.fail("call : Invalid receiver address ");
+        }
+
+        if (sender.toBytes().length != Address.LENGTH){
+            throw env.fail("call : Invalid sender address");
+        }
+
+        File storageFile = new File(storagePath);
+
+        KernelInterfaceImpl kernel = new KernelInterfaceImpl(storageFile);
+
+        // TODO:  Remove this bias when/if we change this to no longer send all transactions from the same account.
+        BigInteger biasedNonce = kernel.getNonce(sender).add(BigInteger.valueOf(nonceBias));
+        Transaction callTransaction = Transaction.call(sender, address, biasedNonce, balance, new byte[0], energyLimit, 1L);
+        return new TransactionContextImpl(callTransaction, block);
+    }
+
     private static void reportCallRequest(IEnvironment env, String storagePath, org.aion.vm.api.interfaces.Address contract, org.aion.vm.api.interfaces.Address sender, String method, Object[] args){
         lineSeparator(env);
         env.logLine("DApp call request");
@@ -116,6 +137,27 @@ public class AvmCLI {
 
         if (callResult.getResultCode() == AvmTransactionResult.Code.FAILED_EXCEPTION) {
             env.dumpThrowable(((AvmTransactionResult) callResult).getUncaughtException());
+        }
+    }
+
+    private static void reportTransferRequest(IEnvironment env, String storagePath, org.aion.vm.api.interfaces.Address address, org.aion.vm.api.interfaces.Address sender, BigInteger balance){
+        lineSeparator(env);
+        env.logLine("Balance transfer request");
+        env.logLine("Storage      : " + storagePath);
+        env.logLine("address      : " + address);
+        env.logLine("Sender       : " + sender);
+        env.logLine("Balance      : " + balance);
+    }
+
+    private static void reportTransferResult(IEnvironment env, TransactionResult transferResult){
+        lineSeparator(env);
+        env.logLine("DApp balance transfer result");
+        env.logLine("Result status: " + transferResult.getResultCode().name());
+        env.logLine("Return value : " + Helpers.bytesToHexString(transferResult.getReturnData()));
+        env.logLine("Energy cost  : " + ((AvmTransactionResult) transferResult).getEnergyUsed());
+
+        if (transferResult.getResultCode() == AvmTransactionResult.Code.FAILED_EXCEPTION) {
+            env.dumpThrowable(((AvmTransactionResult) transferResult).getUncaughtException());
         }
     }
 
@@ -218,6 +260,7 @@ public class AvmCLI {
                 switch (command.action) {
                 case CALL:
                 case DEPLOY:
+                case TRANSFER:
                     // This should be in the batching path.
                     RuntimeAssertionError.unreachable("This should be in the batching path");
                     break;
@@ -274,6 +317,18 @@ public class AvmCLI {
                             command.energyLimit,
                             command.balance);
                         break;
+                    case TRANSFER:
+                        Object[] transferArgs = new Object[command.args.size()];
+                        command.args.toArray(transferArgs);
+                        transactions[i] = setupOneTransfer(
+                            env,
+                            invocation.storagePath,
+                            AvmAddress.wrap(Helpers.hexStringToBytes(command.contractAddress)),
+                            AvmAddress.wrap(Helpers.hexStringToBytes(command.senderAddress)),
+                            command.energyLimit,
+                            i,
+                            command.balance);
+                        break;
                     case EXPLORE:
                     case OPEN:
                         // This should be in the non-batching path.
@@ -304,6 +359,9 @@ public class AvmCLI {
                         break;
                     case DEPLOY:
                         reportDeployResult(env, results[i]);
+                        break;
+                    case TRANSFER:
+                        reportTransferResult(env, results[i]);
                         break;
                     case EXPLORE:
                     case OPEN:
