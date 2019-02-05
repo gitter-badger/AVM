@@ -140,6 +140,8 @@ public interface IBlockchainRuntime {
      */
     Result avm_call(Address targetAddress, BigInteger value, ByteArray data, long energyLimit) throws IllegalArgumentException;
 
+    Result avm_transfer(Address targetAddress, BigInteger value, long energyLimit) throws IllegalArgumentException;
+
     Result avm_create(BigInteger value, ByteArray data, long energyLimit) throws IllegalArgumentException;
 
     /**

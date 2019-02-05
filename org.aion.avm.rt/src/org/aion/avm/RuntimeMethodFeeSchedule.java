@@ -398,6 +398,7 @@ public class RuntimeMethodFeeSchedule {
     public static final long BlockchainRuntime_avm_getCodeSize = RT_METHOD_FEE_LEVEL_1; // totalCost - 122;
     public static final long BlockchainRuntime_avm_getRemainingEnergy = RT_METHOD_FEE_LEVEL_1; // totalCost - 116;
     public static final long BlockchainRuntime_avm_call = RT_METHOD_FEE_LEVEL_1; // totalCost - 140;
+    public static final long BlockchainRuntime_avm_transfer = RT_METHOD_FEE_LEVEL_1; // totalCost - 140;
     public static final long BlockchainRuntime_avm_create = RT_METHOD_FEE_LEVEL_1; // totalCost - 134;
     public static final long BlockchainRuntime_avm_selfDestruct = RT_METHOD_FEE_LEVEL_1; // totalCost - 122;
     public static final long BlockchainRuntime_avm_log = RT_METHOD_FEE_LEVEL_1; // totalCost - 122;

@@ -105,6 +105,11 @@ public final class BlockchainRuntime {
         return blockchainRuntime.avm_call(targetAddress, value, data, energyLimit);
     }
 
+    public static Result avm_transfer(Address targetAddress, BigInteger value, long energyLimit) {
+        IInstrumentation.attachedThreadInstrumentation.get().chargeEnergy(RuntimeMethodFeeSchedule.BlockchainRuntime_avm_transfer);
+        return blockchainRuntime.avm_transfer(targetAddress, value, energyLimit);
+    }
+
     public static Result avm_create(BigInteger value, ByteArray data, long energyLimit) {
         IInstrumentation.attachedThreadInstrumentation.get().chargeEnergy(RuntimeMethodFeeSchedule.BlockchainRuntime_avm_create);
         return blockchainRuntime.avm_create(value, data, energyLimit);
@@ -255,6 +260,10 @@ public final class BlockchainRuntime {
 
     public static Result call(Address targetAddress, java.math.BigInteger value, byte[] data, long energyLimit) {
         return avm_call(targetAddress, new BigInteger(value), new ByteArray(data), energyLimit);
+    }
+
+    public static Result transfer(Address targetAddress, java.math.BigInteger value, long energyLimit) {
+        return avm_transfer(targetAddress, new BigInteger(value), energyLimit);
     }
 
     public static Result create(java.math.BigInteger value, byte[] data, long energyLimit) {

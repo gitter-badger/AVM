@@ -192,6 +192,12 @@ public class TestingBlockchainRuntime implements IBlockchainRuntime {
     }
 
     @Override
+    public Result avm_transfer(Address targetAddress, BigInteger value, long energyLimit) throws IllegalArgumentException {
+        // We will just bounce back the input, so that the caller can see "something".
+        return new Result(true, new ByteArray(value.avm_intValue()));
+    }
+
+    @Override
     public Result avm_create(BigInteger value, ByteArray data, long energyLimit) {
         return new Result(true, null);
     }
