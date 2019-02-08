@@ -13,7 +13,7 @@ public class Double extends Number implements Comparable<Double>{
         IInstrumentation.attachedThreadInstrumentation.get().bootstrapOnly();
     }
 
-    public Double(double d){
+    private Double(double d){
         IInstrumentation.attachedThreadInstrumentation.get().chargeEnergy(RuntimeMethodFeeSchedule.Double_avm_constructor);
         this.v = d;
     }
